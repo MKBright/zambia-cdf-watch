@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CDF Watch — unofficial Lusaka sample</title>
+  <meta name="description" content="Unofficial student demo that lists fictional Constituency Development Fund projects for Kabwata, Matero, and Munali. Not a government system.">
+  <meta name="theme-color" content="#6b2d12">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,560;9..144,650&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="vendor/leaflet/leaflet.css">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <a class="skip" href="#content">Skip to content</a>
+  <!-- Keep this banner on every page. The wording is the project disclaimer. -->
+  <p class="unofficial-banner" role="region" aria-label="Demo notice">Unofficial demo using sample data - not a government system</p>
+
+  <header class="site-header">
+    <div class="wrap header-row">
+      <div>
+        <p class="eyebrow">Lusaka · student portfolio</p>
+        <h1>CDF Watch</h1>
+        <p class="lede">A practice tracker for fictional constituency projects in Kabwata, Matero, and Munali.</p>
+      </div>
+      <p class="stamp" aria-hidden="true">Sample<br>data</p>
+    </div>
+  </header>
+
+  <main id="content">
+    <section class="wrap context" aria-labelledby="why-heading">
+      <h2 id="why-heading">Why this demo exists</h2>
+      <ul>
+        <li>Coverage of the Auditor General’s 2024 report says about 71,000 school desks, worth about K130 million, were paid for but not delivered. <a href="https://www.zambiamonitor.com/zambia-auditor-generals-2024-report-reveals-k130-million-cdf-funded-desks-undelivered-despite-full-payment/">Zambia Monitor</a></li>
+        <li>An IGC policy brief reported that only 27% of 2024 CDF projects were complete by the first quarter of 2025. <a href="https://www.theigc.org/sites/default/files/2025-08/Chomba-et-al-Policy-Brief-July-2025.pdf">Chomba and co-authors, July 2025</a></li>
+        <li>Transparency International Zambia has asked for project status to be published more clearly. <a href="https://tizambia.org.zm/2025/03/ti-z-reaffirms-its-call-for-accountability-in-the-utilization-of-the-constituency-development-fund-cdf/">TI-Z statement</a></li>
+      </ul>
+      <p class="context-note">The cards, map, and table below do not measure those findings. Every project is invented so the page can demonstrate a tracker without pretending to be an official record.</p>
+    </section>
+
+    <noscript>
+      <p class="wrap status-message">This demo needs JavaScript to load the sample projects. The notice at the top still applies: this is not a government system.</p>
+    </noscript>
+
+    <section class="wrap controls" aria-labelledby="filter-heading">
+      <h2 id="filter-heading" class="sr-only">Filters</h2>
+      <form id="filters" class="filters">
+        <label>Constituency
+          <select id="filter-constituency" name="constituency">
+            <option value="all">All constituencies</option>
+          </select>
+        </label>
+        <label>Status
+          <select id="filter-status" name="status">
+            <option value="all">All statuses</option>
+            <option value="planned">Planned</option>
+            <option value="ongoing">Ongoing</option>
+            <option value="delayed">Delayed</option>
+            <option value="complete">Complete</option>
+            <option value="abandoned">Abandoned</option>
+          </select>
+        </label>
+        <label>Category
+          <select id="filter-category" name="category">
+            <option value="all">All categories</option>
+            <option value="community">Community project</option>
+            <option value="bursary">Bursary</option>
+            <option value="empowerment">Empowerment grant</option>
+          </select>
+        </label>
+        <label>Search
+          <input id="filter-query" name="query" type="search" placeholder="Desk, ward, or id" autocomplete="off">
+        </label>
+        <div class="filter-actions">
+          <button type="button" id="reset-filters" class="button button-ghost">Reset</button>
+          <button type="button" id="export-csv" class="button" disabled>Export CSV</button>
+        </div>
+      </form>
+    </section>
+
+    <p id="status-message" class="wrap status-message" role="status">Loading sample projects…</p>
+
+    <section class="wrap summary-section" id="summary-section" aria-labelledby="summary-heading" hidden>
+      <h2 id="summary-heading" class="sr-only">Summary</h2>
+      <div id="summary-cards" class="summary-grid"></div>
+      <p id="flag-callout" class="flag-callout" aria-live="polite" hidden></p>
+    </section>
+
+    <section class="wrap dashboard" id="dashboard" aria-label="Map and charts" hidden>
+      <article class="panel map-panel">
+        <div class="panel-head">
+          <h2>Map</h2>
+          <p>Dots sit on approximate ward locations. Colour shows status. A rust ring means paid but not done. Use + and − to zoom.</p>
+        </div>
+        <div id="map" role="region" aria-label="Map of sample projects"></div>
+        <ul id="legend" class="legend"></ul>
+      </article>
+
+      <div class="chart-stack">
+        <article class="panel">
+          <div class="panel-head">
+            <h2>Budget and spent</h2>
+            <p>Totals for the constituencies in the current filter. Amounts are kwacha.</p>
+          </div>
+          <div class="chart-box">
+            <canvas id="budget-chart" aria-label="Bar chart of budget and amount spent by constituency"></canvas>
+          </div>
+          <p id="budget-summary" class="chart-note"></p>
+        </article>
+        <article class="panel">
+          <div class="panel-head">
+            <h2>Status</h2>
+            <p>How many sample projects are in each status.</p>
+          </div>
+          <div class="chart-box chart-box-short">
+            <canvas id="status-chart" aria-label="Bar chart of project counts by status"></canvas>
+          </div>
+          <p id="status-summary" class="chart-note"></p>
+        </article>
+      </div>
+    </section>
+
+    <section class="wrap list-section" id="list-section" aria-labelledby="list-heading" hidden>
+      <div class="list-head">
+        <h2 id="list-heading">Projects</h2>
+        <p id="result-count" aria-live="polite"></p>
+      </div>
+      <p class="list-note">Every row is fictional sample data. Open a project to read the description or save a private visit note.</p>
+      <p id="empty-state" class="empty-state" hidden>No sample projects match these filters.</p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Project</th>
+              <th>Constituency</th>
+              <th>Category</th>
+              <th>Status</th>
+              <th class="num">Budget</th>
+              <th class="num">Spent</th>
+            </tr>
+          </thead>
+          <tbody id="project-rows"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <p>Unofficial demo using sample data - not a government system. Not a government website and not affiliated with any public office.</p>
+      <p>Portfolio project by Wankumbu Musunga (<a href="https://github.com/MKBright">GitHub @MKBright</a>). Map tiles © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors. Leaflet and Chart.js are loaded from this repository.</p>
+    </div>
+  </footer>
+
+  <dialog id="detail-dialog" aria-labelledby="detail-title"></dialog>
+
+  <script src="vendor/leaflet/leaflet.js"></script>
+  <script src="vendor/chart.js/chart.umd.min.js"></script>
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
