@@ -1,0 +1,10 @@
+{
+  "name": "zambia-cdf-watch",
+  "private": true,
+  "type": "module",
+  "description": "Unofficial demo dashboard for fictional CDF projects in Lusaka.",
+  "scripts": {
+    "test": "node --test && python3 -m unittest tests/test_csv_to_json.py",
+    "data": "python3 scripts/csv_to_json.py"
+  }
+}
